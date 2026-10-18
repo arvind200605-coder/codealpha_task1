@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flashcard Quiz</title>
+<style>
+:root{--bg:#eef2f8;--sf:#fff;--ink:#16202e;--mu:#5d6b7f;--ln:#d9e0eb;--ac:#2f5bea;--ai:#fff;--ok:#12805c;--no:#b45309;--dg:#c0352b;--sh:0 6px 24px rgba(30,50,90,.1);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1520;--sf:#18212f;--ink:#eaf0fa;--mu:#9aa8bd;--ln:#2a3548;--ac:#6b8cff;--ai:#0b1020;--ok:#3ccf9b;--no:#f0a95a;--dg:#ff7b70;--sh:0 6px 24px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#0f1520;--sf:#18212f;--ink:#eaf0fa;--mu:#9aa8bd;--ln:#2a3548;--ac:#6b8cff;--ai:#0b1020;--ok:#3ccf9b;--no:#f0a95a;--dg:#ff7b70;--sh:0 6px 24px rgba(0,0,0,.4)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 16px 100px}
+h1{font-size:1.8rem;margin:0;letter-spacing:-.02em}h2{font-size:1.2rem;margin:0}h3{margin:8px 0 0;font-size:1.05rem}p{margin:0}
+.mu,.tag{color:var(--mu)}.tag{font-size:.85rem}.c{text-align:center}
+.card{background:var(--sf);border-radius:20px;box-shadow:var(--sh);padding:20px}
+.stack{display:flex;flex-direction:column;gap:12px}.row{display:flex;gap:12px;align-items:center}.row>*{flex:1}
+.between{justify-content:space-between}.between>*{flex:none}.grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:520px){.grid{grid-template-columns:repeat(3,1fr)}}
+.st b{font-size:1.5rem;display:block;line-height:1.2}
+button,select{font:inherit;font-weight:600;min-height:52px;padding:0 18px;border-radius:14px;border:2px solid var(--ln);background:var(--sf);color:var(--ink);cursor:pointer;transition:transform .1s}
+button:active:not(:disabled){transform:scale(.97)}button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.pri{background:var(--ac);border-color:var(--ac);color:var(--ai)}.dg{color:var(--dg);border-color:var(--dg)}
+.good{color:var(--ok);border-color:var(--ok)}.bad{color:var(--no);border-color:var(--no)}
+.sm{min-height:40px;padding:0 14px;font-size:.9rem}.chip{min-height:36px;padding:0 14px;border-radius:99px;font-size:.85rem}.chip.on{background:var(--ac);color:var(--ai);border-color:var(--ac)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.chips .chip{flex:none}
+.bar{height:10px;border-radius:99px;background:var(--ln);overflow:hidden}.bar>i{display:block;height:100%;background:var(--ac);transition:width .3s}
+.row>.dl,.row>.dn{flex:none;width:36px}
+input,textarea,select.f{width:100%;font:inherit;padding:12px 14px;border-radius:12px;border:2px solid var(--ln);background:var(--bg);color:var(--ink);min-height:48px}
+textarea{min-height:100px;resize:vertical}label{font-weight:600;display:block;margin-bottom:6px}
+.err{color:var(--dg);font-size:.9rem;min-height:1.2em}
+.item{display:flex;gap:10px;align-items:center;padding:14px}.item button{flex:none}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.flip{perspective:1000px}.inner{display:grid;transition:transform .5s;transform-style:preserve-3d}.flip.on .inner{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:260px;display:flex;flex-direction:column;justify-content:center;gap:12px;overflow-wrap:anywhere;white-space:pre-wrap}
+.back{transform:rotateY(180deg);border:2px solid var(--ac)}.q{font-size:1.35rem;font-weight:650}
+.noanim .inner,.noanim .bar>i{transition:none}.noanim *{animation:none!important}
+.timer{position:relative;height:28px;border-radius:99px;background:var(--ln);overflow:hidden}.timer i{position:absolute;inset:0 auto 0 0;background:var(--ac);opacity:.35;width:100%}.timer span{position:relative;display:block;text-align:center;font-weight:700;line-height:28px}
+.tab{display:flex;gap:6px;align-items:center}.tab b{flex:1}
+nav{position:fixed;inset:auto 0 0 0;display:flex;background:var(--sf);border-top:1px solid var(--ln);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav button{flex:1;border:0;border-radius:0;min-height:60px;padding:6px 0;font-size:.75rem;color:var(--mu);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+nav button.on{color:var(--ac)}nav span{font-size:1.3rem;line-height:1}
+.ach{display:flex;gap:12px;align-items:center}.ach.lock{opacity:.45;filter:grayscale(1)}.ach span{font-size:1.8rem}
+#ts{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:20;pointer-events:none}
+.t{background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-weight:600;animation:up 2.4s ease forwards}
+.t.ach{background:var(--ac);color:var(--ai);display:block}
+@keyframes up{0%{opacity:0;transform:translateY(10px) scale(.9)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+dialog{border:0;border-radius:20px;padding:22px;max-width:440px;width:calc(100% - 32px);background:var(--sf);color:var(--ink);box-shadow:var(--sh)}dialog::backdrop{background:rgba(10,16,30,.55)}
+</style>
+</head>
+<body>
+<main id="app"></main><nav id="nav" aria-label="Main"></nav><div id="ts" aria-live="polite"></div><dialog id="dlg"></dialog>
+<script>
+/* ===== 1. UTILS ===== */
+const $=s=>document.querySelector(s),D=864e5,GOAL=10,MIN=5,TL=15,XPL=300;
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7),iso=()=>new Date().toISOString();
+const today=(o=0)=>{const d=new Date(Date.now()-o*D);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const bar=p=>`<div class="bar" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>`;
+
+/* ===== 2. MODELS & STORAGE (one versioned key) ===== */
+const mk=(deckId,q,a)=>({id:uid(),deckId,question:q,answer:a,last:null,box:0,reviewCount:0,correctCount:0,incorrectCount:0,createdAt:iso(),updatedAt:iso(),lastReviewedAt:null,nextReviewAt:null});
+const newProg=()=>({xp:0,lastStudyDate:null,totalReviewed:0,totalCorrect:0,totalIncorrect:0,achievements:{},daily:{date:""},history:{},streakFrom:"",speedDone:false,perfect:false});
+const Store={key:"flashcard-quiz:v2",load(){try{return JSON.parse(localStorage.getItem(this.key))}catch(e){return null}},save(){try{localStorage.setItem(this.key,JSON.stringify(db))}catch(e){}}};
+function seedDb(){const d={id:uid(),name:"General Knowledge",description:"Starter deck",createdAt:iso(),updatedAt:iso()};
+ return{decks:[d],last:d.id,prog:newProg(),settings:{theme:"system",anim:true,notify:false},
+ cards:[["What is the powerhouse of the cell?","The mitochondrion."],["Capital of Australia?","Canberra."],["What does HTTP stand for?","HyperText Transfer Protocol."],["12 × 12 = ?","144"],["Chemical symbol for gold?","Au"],["Who wrote Hamlet?","William Shakespeare."]].map(([q,a])=>mk(d.id,q,a))}}
+let db=Store.load();if(!db||!db.decks||!db.cards)db=seedDb();db.prog=db.prog||newProg();db.settings=db.settings||{theme:"system",anim:true,notify:false};
+const P=()=>db.prog,cardsOf=id=>db.cards.filter(c=>c.deckId===id),deckName=id=>(db.decks.find(d=>d.id===id)||{name:"?"}).name;
+
+/* ===== 3. SMART REVIEW (simple Leitner boxes) =====
+   box 0..4. Known -> box+1 (next review in 1/3/7/14 days). Need Review -> box 0 (due now, shown first).
+   Status: New -> Learning -> Review -> Mastered */
+const INT=[0,1,3,7,14];
+const statusOf=c=>!c.reviewCount?"new":c.box>=4?"mastered":c.box>=2?"review":"learning";
+const isDue=c=>!c.nextReviewAt||c.nextReviewAt<=iso();
+const prio=c=>(c.last==="review"?0:!c.reviewCount?1:2)+(isDue(c)?0:10);
+function rate(c,known){c.reviewCount++;known?(c.correctCount++,c.box=Math.min(4,c.box+1)):(c.incorrectCount++,c.box=0);
+ c.last=known?"known":"review";c.lastReviewedAt=iso();c.nextReviewAt=new Date(Date.now()+INT[c.box]*D).toISOString()}
+function queue(mode,deck){const pool=deck==="all"?db.cards:cardsOf(deck);
+ if(mode==="classic")return pool;
+ if(mode==="quiz")return pool.map(c=>[prio(c)+Math.random()*3,c]).sort((a,b)=>a[0]-b[0]).slice(0,10).map(x=>x[1]); // weak cards surface more often
+ if(mode==="speed")return shuffle(pool).slice(0,10);
+ if(mode==="review")return pool.filter(c=>c.reviewCount&&isDue(c)).sort((a,b)=>prio(a)-prio(b));
+ return pool.filter(c=>c.incorrectCount>0&&c.box<3)}
+
+/* ===== 4. GAMIFICATION ===== */
+const acc=()=>{const p=P(),t=p.totalCorrect+p.totalIncorrect;return t?Math.round(p.totalCorrect/t*100):0};
+const lvl=()=>Math.floor(P().xp/XPL)+1;
+const studied=d=>(P().history[d]||0)>=MIN&&d>=P().streakFrom;
+function streak(){let i=studied(today())?0:1,n=0;while(studied(today(i))){n++;i++}return n}
+const ACH=[["first","🏆","First Steps","Complete your first flashcard",()=>P().totalReviewed>=1],
+["cons","🔥","Consistency","Study 7 days in a row",()=>streak()>=7],
+["book","📚","Bookworm","Review 100 cards",()=>P().totalReviewed>=100],
+["sharp","🎯","Sharp Memory","90% accuracy (after 20 reviews)",()=>P().totalReviewed>=20&&acc()>=90],
+["speed","⚡","Speed Learner","Complete a Speed Mode session",()=>P().speedDone],
+["perfect","💯","Perfect Session","Finish a session with no Need Review",()=>P().perfect]];
+function check(){ACH.forEach(a=>{if(!P().achievements[a[0]]&&a[4]()){P().achievements[a[0]]=today();toast(a[1]+" Unlocked: "+a[2],"ach")}})}
+function toast(m,cls=""){const e=document.createElement("div");e.className="t "+cls;e.textContent=m;$("#ts").appendChild(e);setTimeout(()=>e.remove(),2500)}
+function addXP(n){P().xp+=n;if(S)S.xp+=n;toast("+"+n+" XP")}
+
+/* ===== 5. STUDY SESSION ===== */
+let view="home",cur=null,q="",f="all",S=null,T=null;
+function start(mode,deck){const cards=queue(mode,deck);
+ if(!cards.length){if(mode==="review"||mode==="mistakes"){view="caught";return render()}return toast("Add cards to this deck first")}
+ if(deck!=="all")db.last=deck;S={mode,deck,cards,i:0,show:false,kn:0,nr:0,xp:0,rated:{},bonus:false};view="session";render()}
+function mark(known){const c=S.cards[S.i],p=P(),left=TL-(Date.now()-S.t0)/1000;rate(c,known);
+ p.totalReviewed++;known?p.totalCorrect++:p.totalIncorrect++;known?S.kn++:S.nr++;S.rated[S.i]=1;
+ const before=studied(today());p.history[today()]=(p.history[today()]||0)+1;
+ let xp=known?10:2;if(S.mode==="speed"&&known&&left>=8)xp+=5; // speed bonus
+ if(!before&&studied(today())){xp+=20;toast("🔥 Streak day complete!")}
+ if(p.history[today()]>=GOAL&&p.daily.date!==today()){p.daily.date=today();xp+=100;toast("🎉 Challenge Complete!")}
+ addXP(xp);check();Store.save();
+ if(S.i<S.cards.length-1){S.i++;S.show=false;render()}else finish()}
+function finish(){stopTimer();if(S.mode==="speed")P().speedDone=true;if(!S.nr&&S.cards.length>=3)P().perfect=true;
+ if(S.mode==="classic"&&S.deck!=="all"&&S.cards.length===cardsOf(S.deck).length){addXP(50);S.bonus=true} // deck-complete bonus
+ check();Store.save();view="summary";render()}
+function startTimer(){stopTimer();S.t0=Date.now();T=setInterval(()=>{const b=$("#tbar");if(!b)return stopTimer();const l=Math.max(0,TL-(Date.now()-S.t0)/1000);
+ b.style.width=l/TL*100+"%";$("#tnum").textContent=Math.ceil(l)+"s";if(l<=0){stopTimer();mark(false)}},100)}
+function stopTimer(){clearInterval(T);T=null}
+
+/* ===== 6. UI COMPONENTS ===== */
+const empty=(ic,t,m,l,a,v="")=>`<div class="card c stack"><h2>${ic} ${t}</h2><p class="mu">${m}</p><button class="pri" data-a="${a}" data-v="${v}">${l}</button></div>`;
+const stLabel=c=>{const s=statusOf(c);return s==="mastered"?"★ Mastered":c.last==="known"?"✓ Known":c.last==="review"?"↻ Need Review":"● New"};
+const cardRow=(c,sd)=>`<div class="card item"><div class="grow"><div>${esc(c.question)}</div><p class="tag">${stLabel(c)}${sd?" — "+esc(deckName(c.deckId)):""}</p></div><button class="sm" data-a="editCard" data-v="${c.id}">Edit</button><button class="sm dg" data-a="delCard" data-v="${c.id}">Delete</button></div>`;
+const deckRow=d=>{const cs=cardsOf(d.id),m=cs.filter(c=>statusOf(c)==="mastered").length;
+ return`<div class="card stack" role="button" tabindex="0" data-a="deck" data-v="${d.id}" style="cursor:pointer"><div class="row between"><b>📘 ${esc(d.name)}</b><span class="mu">${cs.length} cards</span></div>${d.description?`<p class="mu">${esc(d.description)}</p>`:""}${bar(cs.length?m/cs.length*100:0)}<p class="tag">${m} of ${cs.length} mastered</p></div>`};
+const FIL={all:()=>1,new:c=>!c.reviewCount,known:c=>c.last==="known"&&statusOf(c)!=="mastered",review:c=>c.last==="review",mastered:c=>statusOf(c)==="mastered"};
+const hit=c=>(c.question+" "+c.answer).toLowerCase().includes(q.trim().toLowerCase());
+function listHtml(){const t=q.trim().toLowerCase();
+ if(view==="deck"){const cs=cardsOf(cur).filter(c=>FIL[f](c)&&hit(c));return cs.length?cs.map(c=>cardRow(c)).join(""):`<p class="mu c">No flashcards match.</p>`}
+ if(!t)return db.decks.map(deckRow).join("");
+ const ds=db.decks.filter(d=>d.name.toLowerCase().includes(t)),cs=db.cards.filter(hit);
+ return(ds.map(deckRow).join("")+cs.map(c=>cardRow(c,1)).join(""))||`<p class="mu c">No decks or cards match.</p>`}
+
+/* ===== 7. SCREENS ===== */
+function homeView(){const p=P(),h=new Date().getHours(),g=h<12?"Good morning":h<18?"Good afternoon":"Good evening";
+ if(!db.decks.length)return`<h1>${g} 👋</h1><br>`+empty("📚","No decks yet","Create your first study deck and start learning.","+ Create Deck","newDeck");
+ const ld=db.decks.find(d=>d.id===db.last)||db.decks[0],rem=cardsOf(ld.id).filter(c=>!c.reviewCount||isDue(c)).length;
+ const tc=p.history[today()]||0,done=p.daily.date===today(),st=streak();
+ const dow=(new Date().getDay()+6)%7,wk=["M","T","W","T","F","S","S"].map((l,i)=>`<div class="c"><div class="tag">${l}</div><b>${studied(today(dow-i))?"✓":"○"}</b></div>`).join("");
+ return`<div class="stack" style="gap:14px"><h1>${g} 👋</h1>
+ <div class="card stack"><div class="row between"><b>🔥 ${st} Day Study Streak</b></div><div class="row">${wk}</div></div>
+ <div class="card stack"><p class="tag">Continue Studying</p><h2>${esc(ld.name)}</h2><p class="mu">${rem} cards remaining</p><button class="pri" data-a="study" data-v="${ld.id}">Continue →</button></div>
+ <div class="card stack"><b>Today's Progress</b>${bar(Math.min(100,tc/GOAL*100))}<p>${done?"🎉 Challenge Complete! +100 XP":`🎯 Today's Challenge: complete ${GOAL} flashcards — ${tc} / ${GOAL}`}</p></div>
+ <div class="card stack"><div class="row between"><b>Level ${lvl()}</b><span>${p.xp.toLocaleString()} XP</span></div>${bar(p.xp%XPL/XPL*100)}<p class="tag">${p.xp%XPL} / ${XPL} XP to next level</p></div>
+ <div class="grid"><div class="card st"><b>${db.cards.length}</b><span class="tag">Total cards</span></div><div class="card st"><b>${tc}</b><span class="tag">Studied today</span></div><div class="card st"><b>${acc()}%</b><span class="tag">Accuracy</span></div></div>
+ <h3>Quick Actions</h3><div class="grid"><button data-a="addCard">➕ Add Flashcard</button><button data-a="nav" data-v="decks">📚 My Decks</button><button data-a="quick" data-v="mistakes">🔄 Review Mistakes</button><button data-a="quick" data-v="quiz">🎯 Daily Challenge</button></div></div>`}
+
+function decksView(){return`<div class="top"><h1>My Decks</h1><button class="pri sm" data-a="newDeck">+ Create Deck</button></div>`+
+ (db.decks.length?`<div class="stack"><input id="sq" type="search" placeholder="Search decks and cards" aria-label="Search" value="${esc(q)}"><div class="stack" id="list">${listHtml()}</div></div>`:empty("📚","No decks yet","Create your first study deck and start learning.","+ Create Deck","newDeck"))}
+
+function deckView(){const d=db.decks.find(x=>x.id===cur);if(!d){view="decks";return decksView()}
+ return`<div class="top"><button class="sm" data-a="nav" data-v="decks">← Decks</button><button class="sm" data-a="study" data-v="${d.id}">Study</button></div>
+ <div class="stack"><h1>📘 ${esc(d.name)}</h1>${d.description?`<p class="mu">${esc(d.description)}</p>`:""}
+ <div class="row"><button class="sm" data-a="renameDeck">Rename</button><button class="sm dg" data-a="delDeck">Delete deck</button></div>
+ <button class="pri" data-a="addCard" data-v="${d.id}">+ Add Flashcard</button>
+ <input id="sq" type="search" placeholder="Search question or answer" aria-label="Search" value="${esc(q)}">
+ <div class="chips">${Object.keys(FIL).map(k=>`<button class="chip ${f===k?"on":""}" data-a="filter" data-v="${k}">${k==="review"?"Need Review":k[0].toUpperCase()+k.slice(1)}</button>`).join("")}</div>
+ <div class="stack" id="list">${listHtml()}</div></div>`}
+
+function studyView(){if(!db.decks.length)return empty("📚","No decks yet","Create your first study deck and start learning.","+ Create Deck","newDeck");
+ const sd=selDeck(),pool=sd==="all"?db.cards:cardsOf(sd),nR=queue("review",sd).length,nM=queue("mistakes",sd).length;
+ const M=[["classic","📖","Classic","Question → Show Answer → Mark → Next",pool.length],["quiz","🎲","Quick Quiz","10 random cards, weak ones more often",pool.length],["speed","⚡","Speed Mode",TL+" seconds per card, speed bonus XP",pool.length],["review","🔁","Review Mode","Cards due for review, Need Review first",nR],["mistakes","🔄","Review Mistakes","Cards you've struggled with",nM]];
+ return`<h1>Study</h1><br><div class="stack"><div><label for="sd">Deck</label><select id="sd" class="f"><option value="all" ${sd==="all"?"selected":""}>All decks</option>${db.decks.map(d=>`<option value="${d.id}" ${d.id===sd?"selected":""}>${esc(d.name)}</option>`).join("")}</select></div>
+ ${M.map(m=>`<button class="card tab" style="text-align:left" data-a="start" data-v="${m[0]}"><span style="font-size:1.6rem">${m[1]}</span><span class="grow"><b>${m[2]}</b><br><span class="tag" style="font-weight:400">${m[3]}</span></span><span class="mu">${m[4]}</span></button>`).join("")}</div>`}
+
+function sessionView(){const c=S.cards[S.i],n=S.cards.length;
+ return`<div class="stack"><div class="top"><button class="sm" data-a="end">✕ End</button><b>Card ${S.i+1} of ${n}</b><span>${S.xp} XP</span></div>${bar((S.i+1)/n*100)}
+ ${S.mode==="speed"?`<div class="timer"><i id="tbar"></i><span id="tnum">${TL}s</span></div>`:""}
+ <div class="flip ${S.show?"on":""}"><div class="inner"><div class="face card"><p class="tag">Question</p><p class="q">${esc(c.question)}</p></div><div class="face card back"><p class="tag">Answer</p><p class="q">${esc(c.answer)}</p></div></div></div>
+ <div class="stack" id="acts">${acts()}</div></div>`}
+function acts(){const n=S.cards.length;
+ return`<button class="pri" data-a="flip">${S.show?"Hide Answer":"Show Answer"}</button>`+
+ (S.show&&!S.rated[S.i]?`<div class="row"><button class="bad" data-a="mark" data-v="0">↻ Need Review</button><button class="good" data-a="mark" data-v="1">✓ I Know This</button></div>`:S.show?`<p class="mu c">Already rated</p>`:"")+
+ (S.mode==="speed"?"":`<div class="row"><button data-a="step" data-v="-1" ${S.i?"":"disabled"}>← Previous</button><button data-a="step" data-v="1" ${S.i<n-1?"":"disabled"}>Next →</button></div>`)}
+
+function summaryView(){const r=S.kn+S.nr,a=r?Math.round(S.kn/r*100):0;
+ return`<div class="stack"><div class="card c stack"><h1>🎉 Session Complete!</h1><p><b>Cards Reviewed:</b> ${r}</p><p><b>Known:</b> ${S.kn}</p><p><b>Need Review:</b> ${S.nr}</p><p><b>Accuracy:</b> ${a}%</p><p><b>XP Earned:</b> +${S.xp} XP${S.bonus?" (includes deck bonus)":""}</p><p>🔥 <b>${streak()} Day Streak</b></p></div>
+ <button class="pri" data-a="mistakesNow">Review Mistakes</button><button data-a="again">Study Again</button><button data-a="nav" data-v="home">Back to Home</button></div>`}
+const caughtView=()=>empty("🎉","You're all caught up!","There are no cards waiting for review.","Back to Home","nav","home");
+
+function progressView(){const p=P(),cs=db.cards,rv=cs.filter(c=>c.reviewCount).length,ms=cs.filter(c=>statusOf(c)==="mastered").length,nr=cs.filter(c=>c.last==="review").length;
+ const days=[...Array(7)].map((_,i)=>{const o=6-i;return[["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(Date.now()-o*D).getDay()],p.history[today(o)]||0]}),mx=Math.max(1,...days.map(d=>d[1]));
+ const S1=[[cs.length,"Total cards"],[rv,"Cards reviewed"],[ms,"Mastered"],[nr,"Need review"],[acc()+"%","Accuracy"],[p.xp.toLocaleString(),"Total XP"],["Level "+lvl(),"Current level"],[streak()+" days","Current streak"]];
+ return`<h1>Progress</h1><br><div class="stack" style="gap:14px"><div class="grid">${S1.map(s=>`<div class="card st"><b>${s[0]}</b><span class="tag">${s[1]}</span></div>`).join("")}</div>
+ <div class="card stack"><b>Last 7 days (cards studied)</b>${days.map(([l,n])=>`<div class="row" style="gap:8px"><span class="dl tag">${l}</span>${bar(n/mx*100)}<span class="dn">${n}</span></div>`).join("")}</div>
+ <h3>Achievements</h3>${ACH.map(a=>`<div class="card ach ${p.achievements[a[0]]?"":"lock"}"><span>${p.achievements[a[0]]?a[1]:"🔒"}</span><div><b>${a[2]}</b><p class="tag">${a[3]}</p></div></div>`).join("")}</div>`}
+
+function settingsView(){const s=db.settings;
+ return`<h1>Settings</h1><br><div class="stack"><div class="card stack"><b>Appearance</b><div class="row">${["light","dark","system"].map(t=>`<button class="chip ${s.theme===t?"on":""}" data-a="theme" data-v="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join("")}</div></div>
+ <div class="card stack"><div class="row between"><span>Animations</span><button class="sm" data-a="tog" data-v="anim">${s.anim?"On":"Off"}</button></div>
+ <div class="row between"><span class="grow">Study reminders<br><span class="tag">Preference is saved; this web page can't send notifications.</span></span><button class="sm" data-a="tog" data-v="notify">${s.notify?"On":"Off"}</button></div></div>
+ <button class="dg" data-a="resetStreak">Reset study streak</button><button class="dg" data-a="resetAll">Reset progress</button>
+ <div class="card"><b>Flashcard Quiz</b><p class="tag">Data is stored only in this browser. Version 2.</p></div></div>`}
+
+/* ===== 8. DIALOGS ===== */
+const dlg=$("#dlg"),modal=h=>{dlg.innerHTML=h;dlg.showModal()},err=m=>{$("#er").textContent=m};
+function confirmBox(m,label,fn){modal(`<div class="stack"><h2>${m}</h2><div class="row"><button data-a="close">Cancel</button><button class="dg" id="ok">${label}</button></div></div>`);$("#ok").onclick=()=>{dlg.close();fn()}}
+function cardForm(id,deckId){const c=id&&db.cards.find(x=>x.id===id);if(!db.decks.length)return toast("Create a deck first");const did=c?c.deckId:deckId||(db.decks.some(d=>d.id===db.last)?db.last:db.decks[0].id);
+ modal(`<div class="stack"><h2>${c?"Edit":"Add"} Flashcard</h2><div><label for="fd">Deck</label><select id="fd" class="f">${db.decks.map(d=>`<option value="${d.id}" ${d.id===did?"selected":""}>${esc(d.name)}</option>`).join("")}</select></div>
+ <div><label for="fq">Question</label><textarea id="fq">${c?esc(c.question):""}</textarea></div><div><label for="fa">Answer</label><textarea id="fa">${c?esc(c.answer):""}</textarea></div>
+ <p class="err" id="er" role="alert"></p><div class="row"><button data-a="close">Cancel</button><button class="pri" id="sv">Save</button></div></div>`);
+ $("#sv").onclick=()=>{const qs=$("#fq").value.trim(),an=$("#fa").value.trim(),d=$("#fd").value;
+  if(!qs)return err("Enter a question.");if(!an)return err("Enter an answer.");
+  if(db.cards.some(x=>x.deckId===d&&x.id!==id&&x.question.toLowerCase()===qs.toLowerCase()))return err("This question is already in the deck.");
+  if(c){c.question=qs;c.answer=an;c.deckId=d;c.updatedAt=iso()}else{db.cards.push(mk(d,qs,an));db.last=d}
+  Store.save();dlg.close();render()}}
+function deckForm(id){const d=id&&db.decks.find(x=>x.id===id);
+ modal(`<div class="stack"><h2>${d?"Rename":"Create"} Deck</h2><div><label for="dn">Deck name</label><input id="dn" value="${d?esc(d.name):""}"></div><div><label for="dd">Description (optional)</label><input id="dd" value="${d?esc(d.description||""):""}"></div>
+ <p class="err" id="er" role="alert"></p><div class="row"><button data-a="close">Cancel</button><button class="pri" id="sv">Save</button></div></div>`);
+ $("#sv").onclick=()=>{const n=$("#dn").value.trim(),ds=$("#dd").value.trim();
+  if(!n)return err("Enter a deck name.");if(db.decks.some(x=>x.id!==id&&x.name.toLowerCase()===n.toLowerCase()))return err("A deck with this name already exists.");
+  if(d){d.name=n;d.description=ds;d.updatedAt=iso()}else{const x={id:uid(),name:n,description:ds,createdAt:iso(),updatedAt:iso()};db.decks.push(x);db.last=x.id}
+  Store.save();dlg.close();render()}}
+
+/* ===== 9. ACTIONS & RENDER ===== */
+const selDeck=()=>db.last==="all"||db.decks.some(d=>d.id===db.last)?db.last:(db.decks[0]||{}).id||"all";
+const A={
+ nav(v){stopTimer();view=v;q="";f="all";render();scrollTo(0,0)},
+ deck(id){cur=id;A.nav("deck")},filter(v){f=v;render()},
+ study(id){db.last=id;A.nav("study")},start(m){start(m,selDeck())},quick(m){start(m,"all")},
+ flip(){S.show=!S.show;$(".flip").classList.toggle("on",S.show);$("#acts").innerHTML=acts()},
+ mark(v){mark(String(v)==="1")},step(d){S.i+=+d;S.show=false;render()},
+ end(){confirmBox("End this session?","End",()=>{if(S.kn+S.nr)finish();else A.nav("study")})},
+ again(){start(S.mode,S.deck)},mistakesNow(){start("mistakes",S.deck)},
+ addCard(id){cardForm(null,id)},editCard(id){cardForm(id)},
+ delCard(id){confirmBox("Are you sure you want to delete this flashcard?","Delete",()=>{db.cards=db.cards.filter(c=>c.id!==id);Store.save();render()})},
+ newDeck(){deckForm()},renameDeck(){deckForm(cur)},
+ delDeck(){confirmBox("Delete this deck and all its flashcards?","Delete",()=>{db.decks=db.decks.filter(d=>d.id!==cur);db.cards=db.cards.filter(c=>c.deckId!==cur);Store.save();A.nav("decks")})},
+ theme(v){db.settings.theme=v;applyTheme();Store.save();render()},tog(k){db.settings[k]=!db.settings[k];applyTheme();Store.save();render()},
+ resetStreak(){confirmBox("Reset your study streak? It restarts tomorrow.","Reset",()=>{P().streakFrom=today(-1);Store.save();render()})},
+ resetAll(){confirmBox("Reset all progress? Your decks and flashcards are kept.","Reset",()=>{db.cards.forEach(c=>Object.assign(c,{last:null,box:0,reviewCount:0,correctCount:0,incorrectCount:0,lastReviewedAt:null,nextReviewAt:null}));db.prog=newProg();Store.save();render();toast("Progress reset")})},
+ close(){dlg.close()}};
+function applyTheme(){const r=document.documentElement,s=db.settings;s.theme==="system"?delete r.dataset.theme:r.dataset.theme=s.theme;document.body.classList.toggle("noanim",!s.anim)}
+const TABS=[["home","🏠","Home"],["decks","📚","Decks"],["study","🎯","Study"],["progress","📊","Progress"],["settings","⚙️","Settings"]];
+const tabOf=v=>({deck:"decks",session:"study",summary:"study",caught:"study"}[v]||v);
+function render(){const V={home:homeView,decks:decksView,deck:deckView,study:studyView,session:sessionView,summary:summaryView,caught:caughtView,progress:progressView,settings:settingsView};
+ $("#app").innerHTML=V[view]();$("#nav").hidden=view==="session";
+ $("#nav").innerHTML=TABS.map(t=>`<button class="${tabOf(view)===t[0]?"on":""}" data-a="nav" data-v="${t[0]}" ${tabOf(view)===t[0]?'aria-current="page"':""}><span>${t[1]}</span>${t[2]}</button>`).join("");
+ if(view==="session"&&S.mode==="speed")startTimer();else stopTimer()}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(t&&!t.disabled&&A[t.dataset.a])A[t.dataset.a](t.dataset.v)});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches("[role=button]"))e.target.click()});
+document.addEventListener("input",e=>{if(e.target.id==="sq"){q=e.target.value;$("#list").innerHTML=listHtml()}});
+document.addEventListener("change",e=>{if(e.target.id==="sd"){db.last=e.target.value;Store.save();render()}});
+applyTheme();render();
+</script>
+</body>
+</html>
